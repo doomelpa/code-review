@@ -200,8 +200,8 @@
     (closql-with-transaction db
       (when (= version 7)
         (message "Upgrading Code Review database from version 7 to 8...")
-        (emacsql db [:alter-table pullreq :add-column base-ref-name :default nil])
-        (emacsql db [:alter-table pullreq :add-column head-ref-name :default nil])
+        (colsql db [:alter-table pullreq :add-column base-ref-name :default nil])
+        (colsql db [:alter-table pullreq :add-column head-ref-name :default nil])
         (closql--db-set-version db (setq version 8))
         (message "Upgrading Code Review database from version 7 to 8...done"))
       (cl-call-next-method))))
@@ -220,7 +220,7 @@
   "Find eieio obj of PR for OWNER, REPO, and NUMBER."
   (let ((db (code-review-db))
         (class 'code-review-db-pullreq))
-    (->> (emacsql db [:select :*
+    (->> (colsql db [:select :*
                       :from 'pullreq
                       :where (and (= owner $s1)
                                   (= repo $s2)
@@ -236,12 +236,12 @@
 
 (defun code-review-db-all-unfinished ()
   "Get a list of all unfinished Reviews."
-  (when (and code-review-db-connection (emacsql-live-p code-review-db-connection))
-    (emacsql-close code-review-db-connection)
+  (when (and code-review-db-connection (colsql-live-p code-review-db-connection))
+    (colsql-close code-review-db-connection)
     (setq code-review-db-connection nil))
   (let ((class 'code-review-db-pullreq)
         (db (code-review-db)))
-    (->> (emacsql db
+    (->> (colsql db
                   [:select :*
                    :from 'pullreq
                    :where (and (= saved 't)
