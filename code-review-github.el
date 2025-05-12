@@ -745,15 +745,15 @@ Optionally ask for the FALLBACK? query."
                       (a-assoc payload 'body (oref review feedback))
                     payload))
          (payload (if (oref review local-comments)
-                      (a-assoc payload 'comments (--sort
-                                                  (< (a-get it 'position)
-                                                     (a-get other 'position))
-                                                  (-map
-                                                   (lambda (c)
-                                                     `((path . ,(oref c path))
-                                                       (position . ,(oref c position))
-                                                       (body . ,(oref c body))))
-                                                   (oref review local-comments))))
+                      (a-assoc payload 'comments (vconcat (--sort
+                                                           (< (a-get it 'position)
+                                                              (a-get other 'position))
+                                                           (-map
+                                                            (lambda (c)
+                                                              `((path . ,(oref c path))
+                                                               (position . ,(oref c position))
+                                                               (body . ,(oref c body))))
+                                                            (oref review local-comments)))))
                     payload)))
     (ghub-post (format "/repos/%s/%s/pulls/%s/reviews"
                        (oref pr owner)
