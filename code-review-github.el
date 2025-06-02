@@ -529,9 +529,9 @@ Optionally ask for the FALLBACK? query."
     (message "Sending new labels...")
     (funcall req-fn url
              nil
-             :payload (a-alist 'labels (or (-map (lambda (x)
+             :payload (a-alist 'labels (or (vconcat (-map (lambda (x)
                                                    (a-get x 'name))
-                                                 (oref github labels))
+                                                 (oref github labels)))
                                            []))
              :auth code-review-auth-login-marker
              :host code-review-github-host
