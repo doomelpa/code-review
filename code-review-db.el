@@ -35,6 +35,17 @@
 (require 'uuidgen)
 (require 'dash)
 
+;; Workaround for closql bug with Emacs 30+
+;; closql--coerce returns class objects instead of class symbols,
+;; but closql--abbrev-class expects symbols. This advice converts
+;; class objects to symbols before processing.
+(define-advice closql--abbrev-class (:filter-args (args) code-review-fix-class-obj)
+  "Convert class object to symbol if needed for Emacs 30+ compatibility."
+  (let ((class (car args)))
+    (if (eieio--class-p class)
+        (list (eieio--class-name class))
+      args)))
+
 (defcustom code-review-db-database-file
   (expand-file-name "code-review-db-file.sqlite" user-emacs-directory)
   "The file used to store the `code-review' database."
