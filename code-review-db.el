@@ -35,6 +35,18 @@
 (require 'uuidgen)
 (require 'dash)
 
+;; Emacs 30 compatibility fix for closql.
+;; In Emacs 30, `closql--coerce' may return an `eieio--class' struct
+;; instead of a class symbol in slot 0 when converting objects to lists.
+;; This advice ensures `closql--abbrev-class' receives a symbol.
+(when (>= emacs-major-version 30)
+  (define-advice closql--abbrev-class (:filter-args (args) code-review--handle-class-struct)
+    "Handle case where class is an eieio--class struct instead of symbol."
+    (let ((class (car args)))
+      (list (if (eieio--class-p class)
+                (eieio--class-name class)
+              class)))))
+
 (defcustom code-review-db-database-file
   (expand-file-name "code-review-db-file.sqlite" user-emacs-directory)
   "The file used to store the `code-review' database."
