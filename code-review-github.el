@@ -519,20 +519,21 @@ Optionally ask for the FALLBACK? query."
 
 (cl-defmethod code-review-send-labels ((github code-review-github-repo) callback)
   "Set labels for your pr at GITHUB and call CALLBACK."
-  (let ((url (format "/repos/%s/%s/issues/%s/labels"
-                     (oref github owner)
-                     (oref github repo)
-                     (oref github number)))
-        (req-fn (if (oref github labels)
-                    #'ghub-post
-                  #'ghub-put)))
+  (let* ((url (format "/repos/%s/%s/issues/%s/labels"
+                      (oref github owner)
+                      (oref github repo)
+                      (oref github number)))
+         (labels (oref github labels))
+         (label-names (if labels
+                          (vconcat (-map (lambda (x) (a-get x 'name)) labels))
+                        []))
+         (req-fn (if labels
+                     #'ghub-post
+                   #'ghub-put)))
     (message "Sending new labels...")
     (funcall req-fn url
              nil
-             :payload (a-alist 'labels (or (-map (lambda (x)
-                                                   (a-get x 'name))
-                                                 (oref github labels))
-                                           []))
+             :payload `((labels . ,label-names))
              :auth code-review-auth-login-marker
              :host code-review-github-host
              :errorback #'code-review-github-errback
