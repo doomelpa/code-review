@@ -29,6 +29,12 @@
 ;;; Code:
 
 (require 'ghub)
+;; `ghub-graphql' moved to `ghub-legacy' in Ghub 5.0 and `ghub'
+;; stopped loading that file in Ghub 5.1.  Keep working with both older
+;; Ghub versions, where `ghub' still defines `ghub-graphql', and newer
+;; ones, where the compatibility wrapper has to be loaded explicitly.
+(unless (fboundp 'ghub-graphql)
+  (require 'ghub-legacy nil t))
 (require 'deferred)
 (require 'code-review-interfaces)
 (require 'code-review-db)
